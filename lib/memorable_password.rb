@@ -1,19 +1,36 @@
 module MemorablePassword
   
   MAX_WORD_LENGTH = 6
+  DIGITS = (0..9).to_a.map{|d| d.to_s}
+  CHARACTERS = DIGITS + %w[! @ $ ? -]
+  
   DEFAULT_LENGTH = 8
+  DEFAULT_OPTIONS = {:mixed_case => false}.with_indifferent_access  
   
   class << self; attr_accessor :dictionary end
   @dictionary = nil
     
   def self.generate(length=DEFAULT_LENGTH, opts={})
     dict = initialize_dictionary
+    opts = DEFAULT_OPTIONS.merge(opts)
     
-    
+    # TODO: create the password
     
   end
   
   private
+  
+  def self.get_character
+    CHARACTERS.sample
+  end
+  
+  def self.get_digit
+    DIGITS.sample
+  end
+  
+  def self.get_word(length)
+    self.dictionary[length].sample
+  end
   
   def self.initialize_dictionary
     unless self.dictionary
