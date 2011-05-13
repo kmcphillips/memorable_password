@@ -1,11 +1,16 @@
+require 'lib/memorable_password/sample'
+
 module MemorablePassword
   
   MAX_WORD_LENGTH = 6
   DIGITS = (0..9).to_a.map{|d| d.to_s}
-  CHARACTERS = DIGITS + %w[! @ $ ? -]
+  CHARACTERS = %w[! @ $ ? -]
   
   DEFAULT_LENGTH = 8
-  DEFAULT_OPTIONS = {:mixed_case => false}.with_indifferent_access  
+  DEFAULT_OPTIONS = {
+    :mixed_case => false,
+    :special_characters => false
+  }
   
   class << self; attr_accessor :dictionary end
   @dictionary = nil
@@ -14,22 +19,34 @@ module MemorablePassword
     dict = initialize_dictionary
     opts = DEFAULT_OPTIONS.merge(opts)
     
-    # TODO: create the password
+    # TODO: this may sometimes be longer for short password lengths
+    password = [word, (opts[:special_characters] ? character : digit)]
+    password << word(length - password.compact.join.length)
     
+    if (count = length - password.compact.join.length) > 0
+      count.times{ password << digit }
+    end
+    
+    if opts[:mixed_case]
+      password.compact.reject{|x| x.length == 1}.sample.capitalize!
+    end
+    
+    password.compact.join
   end
   
   private
   
-  def self.get_character
+  def self.character
     CHARACTERS.sample
   end
   
-  def self.get_digit
+  def self.digit
     DIGITS.sample
   end
   
-  def self.get_word(length)
-    self.dictionary[length].sample
+  def self.word(length=nil)
+    length = self.dictionary.keys.sample unless length
+    self.dictionary[length].sample if self.dictionary.has_key?(length)
   end
   
   def self.initialize_dictionary

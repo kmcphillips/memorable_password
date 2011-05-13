@@ -14,12 +14,23 @@ It is, of course, by definition less secure than a truly random password. The in
 
 Generates a password with the default length of 8 characters.
 
-    password = MemorablePassword.generate
-    
+    MemorablePassword.generate
+    => "pad8dune"
+
 Generates a password with a specified length.
 
-    password = MemorablePassword.generate 6
+    MemorablePassword.generate 10
+    => "june3eaten"
 
+Generates a password that includes special characters.
+
+    MemorablePassword.generate 8, :special_characters => true
+    => "grace!pi"
+
+Generates a password that mixes upper case in.
+
+    MemorablePassword.generate 8, :mixed_case => true
+    => "was7Room"
 
 
 ## Feedback
