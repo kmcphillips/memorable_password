@@ -6,33 +6,43 @@ module MemorablePassword
   DIGITS = (0..9).to_a.map{|d| d.to_s}
   CHARACTERS = %w[! @ $ ? -]
   
-  DEFAULT_LENGTH = 8
   DEFAULT_OPTIONS = {
     :mixed_case => false,
-    :special_characters => false
+    :special_characters => false,
+    :length => nil
   }
   
   class << self; attr_accessor :dictionary, :blacklist end
   @dictionary = nil
   @blacklist = nil
     
-  def self.generate(length=DEFAULT_LENGTH, opts={})
+  def self.generate(opts={})
     dict = initialize_dictionary
     opts = DEFAULT_OPTIONS.merge(opts)
     
-    # TODO: this may sometimes be longer for short password lengths
     password = [word, (opts[:special_characters] ? character : digit)]
-    password << word(length - password.compact.join.length)
     
-    if (count = length - password.compact.join.length) > 0
-      count.times{ password << digit }
+    if opts[:length]
+      password << word(opts[:length] - password.compact.join.length)
+
+      if (count = length - password.compact.join.length) > 0
+        count.times{ password << digit }
+      end
+    else
+      password << word
+      password << digit if opts[:special_characters]
     end
     
     if opts[:mixed_case]
       password.compact.reject{|x| x.length == 1}.sample.capitalize!
     end
     
-    password.compact.join
+    # If it is too long, just cut it down to size. This should not happen often unless the :length option is present and is very small.
+    if opts[:length] && password.compact.join.length > opts[:length]
+      password.compact.join.slice(0, opts[:length])
+    else
+      password.compact.join
+    end
   end
   
   private

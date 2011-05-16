@@ -19,20 +19,22 @@ Generates a password with the default length of 8 characters.
 
 Generates a password with a specified length.
 
-    MemorablePassword.generate 10
+    MemorablePassword.generate :length => 10
     => "june3eaten"
 
 Generates a password that includes special characters.
 
-    MemorablePassword.generate 8, :special_characters => true
+    MemorablePassword.generate :special_characters => true
     => "grace!pi"
 
 Generates a password that mixes upper case in.
 
-    MemorablePassword.generate 8, :mixed_case => true
+    MemorablePassword.generate :mixed_case => true
     => "was7Room"
 
 
 ## Feedback
 
 Contact me at [github@kevinmcphillips.ca](mailto:github@kevinmcphillips.ca) with questions or feedback.
+
+
