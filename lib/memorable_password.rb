@@ -2,7 +2,7 @@ require 'memorable_password/sample'
 
 module MemorablePassword
   
-  MAX_WORD_LENGTH = 6
+  MAX_WORD_LENGTH = 7
   DIGITS = (0..9).to_a.map{|d| d.to_s}
   CHARACTERS = %w[! @ $ ? -]
   
@@ -15,22 +15,23 @@ module MemorablePassword
   class << self; attr_accessor :dictionary, :blacklist end
   @dictionary = nil
   @blacklist = nil
-    
+  
   def self.generate(opts={})
-    dict = initialize_dictionary
     opts = DEFAULT_OPTIONS.merge(opts)
     
-    password = [word, (opts[:special_characters] ? character : digit)]
-    
     if opts[:length]
+      password = [(opts[:length] >= 9 ? long_word : word), (opts[:special_characters] ? character : digit)]
       password << word(opts[:length] - password.compact.join.length)
 
       if (count = opts[:length] - password.compact.join.length) > 0
         count.times{ password << digit }
       end
     else
-      password << word
-      password << digit if opts[:special_characters]
+      if opts[:special_characters]
+        password = [word, character, word, digit]
+      else
+        password = [word, digit, word]
+      end
     end
     
     if opts[:mixed_case]
@@ -45,6 +46,8 @@ module MemorablePassword
     end
   end
   
+  private
+  
   def self.character
     CHARACTERS.sample
   end
@@ -58,7 +61,10 @@ module MemorablePassword
     self.dictionary[length].sample if self.dictionary.has_key?(length)
   end
   
-  private
+  def self.long_word
+    keys = self.dictionary.keys.sort
+    self.dictionary[keys.partition{|v| v >= keys[keys.size/2] }.first.sample].sample  # Magic! It actually just randomly picks from the larger words..
+  end
   
   def self.initialize_dictionary
     unless self.dictionary
@@ -90,5 +96,7 @@ module MemorablePassword
       self.dictionary[length] << word
     end
   end
+
+  initialize_dictionary
   
 end
