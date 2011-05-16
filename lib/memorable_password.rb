@@ -45,8 +45,6 @@ module MemorablePassword
     end
   end
   
-  private
-  
   def self.character
     CHARACTERS.sample
   end
@@ -56,9 +54,11 @@ module MemorablePassword
   end
   
   def self.word(length=nil)
-    length = self.dictionary.keys.sample unless length
+    length = self.dictionary.keys.sample if !length || length > self.dictionary.keys.max
     self.dictionary[length].sample if self.dictionary.has_key?(length)
   end
+  
+  private
   
   def self.initialize_dictionary
     unless self.dictionary
