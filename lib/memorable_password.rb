@@ -20,7 +20,7 @@ module MemorablePassword
     opts = DEFAULT_OPTIONS.merge(opts)
     
     if opts[:length]
-      password = [(opts[:length] >= 9 ? long_word : word), (opts[:special_characters] ? character : digit)]
+      password = [(opts[:length] >= 8 ? long_word : word), (opts[:special_characters] ? character : digit)]
       password << word(opts[:length] - password.compact.join.length)
 
       if (count = opts[:length] - password.compact.join.length) > 0
@@ -30,7 +30,7 @@ module MemorablePassword
       if opts[:special_characters]
         password = [word, character, word, digit]
       else
-        password = [word, digit, word]
+        password = [word, digit, long_word]
       end
     end
     
