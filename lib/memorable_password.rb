@@ -25,7 +25,7 @@ module MemorablePassword
     if opts[:length]
       password << word(opts[:length] - password.compact.join.length)
 
-      if (count = length - password.compact.join.length) > 0
+      if (count = opts[:length] - password.compact.join.length) > 0
         count.times{ password << digit }
       end
     else
