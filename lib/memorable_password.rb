@@ -9,7 +9,8 @@ module MemorablePassword
   DEFAULT_OPTIONS = {
     :mixed_case => false,
     :special_characters => false,
-    :length => nil
+    :length => nil,
+    :min_length => nil
   }
   
   class << self; attr_accessor :dictionary, :blacklist end
@@ -19,13 +20,20 @@ module MemorablePassword
   def self.generate(opts={})
     opts = DEFAULT_OPTIONS.merge(opts)
     
+    raise "You cannot specify :length and :min_length at the same time" if opts[:length] && opts[:min_length]  # Nonsense!
+    
     if opts[:length]
       password = [(opts[:length] >= 8 ? long_word : word), (opts[:special_characters] ? character : digit)]
       password << word(opts[:length] - password.compact.join.length)
 
       if (count = opts[:length] - password.compact.join.length) > 0
-        count.times{ password << digit }
+        if count == 1
+          password << digit
+        else
+          password << word(count)
+        end
       end
+      
     else
       if opts[:special_characters]
         password = [word, character, word, digit]
@@ -38,9 +46,26 @@ module MemorablePassword
       password.compact.reject{|x| x.length == 1}.sample.capitalize!
     end
     
+    # If a minimum length is required and this password is too short
+    if opts[:min_length] && password.compact.join.length < opts[:min_length]
+      if (count = opts[:min_length] - password.compact.join.length) == 1
+        password << digit
+      else
+        password << word(count)
+      end
+    end
+    
     # If it is too long, just cut it down to size. This should not happen often unless the :length option is present and is very small.
     if opts[:length] && password.compact.join.length > opts[:length]
-      password.compact.join.slice(0, opts[:length])
+      result = password.compact.join.slice(0, opts[:length])
+      
+      # If there is no digit then it is probably a short password that by chance is just a dictionary word. Override that because that is bad.
+      if result =~ /^[a-z]+$/
+        password = [(opts[:mixed_case] ? word(opts[:length] - 1).capitalize : word(opts[:length] - 1)), (opts[:special_characters] ? character : digit)]
+        result = password.compact.join
+      end
+      
+      result
     else
       password.compact.join
     end

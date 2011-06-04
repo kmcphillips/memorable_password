@@ -22,6 +22,11 @@ Generates a password with a specified length.
     MemorablePassword.generate :length => 10
     => "june3eaten"
 
+Generates a password that is at least a certain length.
+
+    MemorablePassword.generate :min_length => 8
+    => "gale3covalt"
+
 Generates a password that includes special characters.
 
     MemorablePassword.generate :special_characters => true
