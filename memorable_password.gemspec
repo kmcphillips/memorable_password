@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name        = "memorable_password"
   s.version     = MemorablePassword::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Kevin McPhillips"]
-  s.email       = ["github@kevinmcphillips.ca"]
+  s.authors     = ["Kevin McPhillips", "Oleksandr Ulianytskyi"]
+  s.email       = ["github@kevinmcphillips.ca", "a.ulyanitsky@gmail.com"]
   s.homepage    = "http://github.com/kimos/memorable_password"
   s.summary     = %q{Generate human readable and easy to remember passwords}
   s.description = %q{This simple gem generates a random password that is easy to read and remember. It uses dictionary words as well as a list of proper names mixed in with numbers and special characters.}
@@ -18,4 +18,8 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
+
+  s.add_development_dependency("rspec", ">= 2.6.0")
+  s.add_development_dependency("rcov", ">= 0")
+  s.add_development_dependency("yard", ">= 0")
 end
