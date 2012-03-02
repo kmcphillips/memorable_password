@@ -1,7 +1,7 @@
 # Memorable Password
 
-[Kevin McPhillips](mailto:github@kevinmcphillips.ca)
-
+[Kevin McPhillips](mailto:github@kevinmcphillips.ca),
+[Oleksandr Ulianytskyi](mailto:a.ulyanitsky@gmail.com)
 
 ## About
 
@@ -14,29 +14,33 @@ It is, of course, by definition less secure than a truly random password. The in
 
 Generates a password with the default length of 8 characters.
 
-    MemorablePassword.generate
+    MemorablePassword.new.generate
     => "pad8dune"
 
 Generates a password with a specified length.
 
-    MemorablePassword.generate :length => 10
+    MemorablePassword.new.generate :length => 10
     => "june3eaten"
 
 Generates a password that is at least a certain length.
 
-    MemorablePassword.generate :min_length => 8
+    MemorablePassword.new.generate :min_length => 8
     => "gale3covalt"
 
 Generates a password that includes special characters.
 
-    MemorablePassword.generate :special_characters => true
+    MemorablePassword.new.generate :special_characters => true
     => "grace!pi"
 
 Generates a password that mixes upper case in.
 
-    MemorablePassword.generate :mixed_case => true
+    MemorablePassword.new.generate :mixed_case => true
     => "was7Room"
 
+Generates a password that is two 4-char words joined by non-ambiguous digit (not 2 and 4).
+
+    MemorablePassword.new.generate_simple
+    => "sons3pied"
 
 ## Feedback
 

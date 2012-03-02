@@ -1,8 +1,18 @@
 require 'memorable_password/sample'
 
+# This class uses for generation memorable passwords
+# You may instantiatie it with additional ban list:
+#
+#   memorable_password = MemorablePassword.new(['bad word'])
+#
+# Simple password which is two 4-char word joined by non-ambiguous digit may be generated using {MemorablePassword#generate_simple}:
+#
+#   MemorablePassword.new.generate_simple
+#   # => "sons3pied"
 class MemorablePassword
   MAX_WORD_LENGTH = 7
-  DIGITS = ((0..9).to_a - [2, 4]).map(&:to_s).freeze
+  DIGITS = (0..9).map(&:to_s).freeze
+  NON_AMBIGUOUS_DIGITS = ((0..9).to_a - [2, 4]).map(&:to_s).freeze
   CHARACTERS = %w[! @ $ ? -].freeze
 
   DEFAULT_OPTIONS = {
@@ -14,8 +24,8 @@ class MemorablePassword
 
   attr_accessor :dictionary, :blacklist, :ban_list
 
-  # Constructor
-  # ban_list:: additional words list should be added to blacklist
+  # Constructor.
+  # +ban_list+:: additional words list should be added to blacklist
   def initialize(ban_list = [])
     @ban_list = ban_list
     @dictionary = nil
@@ -26,12 +36,18 @@ class MemorablePassword
   # Generates memorable password as a combination of two 4-letter dictionary words joined by a numeric character (but not 4 and 8).
   def generate_simple
     password = word(4)
-    password << digit
+    password << non_ambiguous_digit
     password << word(4)
     password
   end
 
-  # Generates memorable password
+  # Generates memorable password.
+  # +opts+:: hash with options
+  # [:mixed_case] +true+ or +false+ - use mixedCase (default: +false+)
+  # [:special_characters] +true+ or +false+ - use special characters like ! @ $? - (default: +false+)
+  # [:length] Fixnum - generate passoword with specific length
+  # [:min_length] Fixnum - generate passoword with length grather or equal of specified
+  # Options +:length+ and +:min_length+ are incompatible.
   def generate(opts={})
     opts = DEFAULT_OPTIONS.merge(opts)
 
@@ -88,24 +104,34 @@ class MemorablePassword
 
   private
 
+  # Returns random character
   def character
     CHARACTERS.sample
   end
 
+  # Returns random digit
   def digit
     DIGITS.sample
   end
 
+  # Returns random non-ambiguous digit (0..9 without 2 and 4)
+  def non_ambiguous_digit
+    NON_AMBIGUOUS_DIGITS.sample
+  end
+
+  # Returns random word. If +length+ given, find word with this length.
   def word(length=nil)
     length = self.dictionary.keys.sample if !length || length > self.dictionary.keys.max
     self.dictionary[length].sample if self.dictionary.has_key?(length)
   end
 
+  # Returns random word from most long ones
   def long_word
     keys = self.dictionary.keys.sort
     self.dictionary[keys.partition{|v| v >= keys[keys.size/2] }.first.sample].sample  # Magic! It actually just randomly picks from the larger words..
   end
 
+  # Adds +word+ to dictionary if it not in blacklist
   def add_word(word)
     word = word.strip.downcase
     length = word.length
