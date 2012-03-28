@@ -2,38 +2,156 @@ require 'spec_helper'
 require 'open-uri'
 
 describe MemorablePassword do
-  describe "#generate_simple" do
-    let(:generated_password) { @generated_password ||= subject.generate_simple }
+  let(:memorable_password) do
+    default_path = "#{File.dirname(__FILE__)}/config"
+    @memorable_password ||= MemorablePassword.new(
+                              :dictionary_paths => ["#{default_path}/custom_dictionary.txt"],
+                              :blacklist_paths => ["#{default_path}/custom_blacklist.txt"])
+  end
 
-    it "should return 9-letter string" do
+  describe "constructor" do
+    it "should initialize ban_list" do
+      memorable_password.ban_list.should_not be_nil
+      memorable_password.ban_list.should be_empty
+    end
+
+    it "should support a ban_list option" do
+      expected_ban_list = ['a','b']
+      MemorablePassword.new(:ban_list => expected_ban_list).ban_list.should == expected_ban_list
+    end
+
+    it "should support configurable dictionary paths" do
+      memorable_password.dictionary.values.flatten.should include 'word'
+    end
+
+    it "should support configurable blacklist paths" do
+      memorable_password.blacklist.should include 'blcklst'
+    end
+  end
+
+  describe "#add_word" do
+    it "should not add words that are less than 2 characters" do
+      memorable_password.add_word('i')
+      memorable_password.dictionary.values.flatten.should_not include('i')
+    end
+
+    it "should not add words that are greater than MemorablePassword::MAX_WORD_LENGTH" do
+      long_word = (0..MemorablePassword::MAX_WORD_LENGTH+1).map{|a| 'a'}.join
+      memorable_password.add_word(long_word)
+      memorable_password.dictionary.values.flatten.should_not include(long_word)
+    end
+
+    it "should not add words that have non-letters" do
+      memorable_password.add_word('iask3')
+      memorable_password.dictionary.values.flatten.should_not include('iask3')
+    end
+
+    it "should not add words that are blacklisted" do
+      blacklisted_word = memorable_password.blacklist.first
+      memorable_password.add_word(blacklisted_word)
+      memorable_password.dictionary.values.flatten.should_not include(blacklisted_word)
+    end
+
+    it "should add valid words to the dictionary" do
+      valid_word = 'uhappy'
+      memorable_password.add_word(valid_word)
+      memorable_password.dictionary.values.flatten.should include(valid_word)
+    end
+  end
+
+  describe "#blacklist_word" do
+    it "should not add words that are less than 2 characters" do
+      memorable_password.blacklist_word('i')
+      memorable_password.blacklist.should_not include('i')
+    end
+
+    it "should not add words that are greater than MemorablePassword::MAX_WORD_LENGTH" do
+      long_word = (0..MemorablePassword::MAX_WORD_LENGTH+1).map{|a| 'a'}.join
+      memorable_password.blacklist_word(long_word)
+      memorable_password.blacklist.should_not include(long_word)
+    end
+
+    it "should not add words that have non-letters" do
+      memorable_password.blacklist_word('iask3')
+      memorable_password.blacklist.should_not include('iask3')
+    end
+
+    it "should add valid words to the blacklist" do
+      valid_word = 'uhappy'
+      memorable_password.blacklist_word(valid_word)
+      memorable_password.blacklist.should include(valid_word)
+    end
+
+    it "should remove blacklisted word from the dictionary" do
+      blacklisted_dictionary_word = memorable_password.dictionary.values.flatten.sample
+      memorable_password.blacklist_word(blacklisted_dictionary_word)
+      memorable_password.dictionary.values.flatten.should_not include(blacklisted_dictionary_word)
+    end
+
+  end
+
+  describe "#generate_simple" do
+    let(:generated_password) { @generated_password ||= memorable_password.generate_simple }
+
+    it "should return a 9-letter string" do
       generated_password.should be_a(String)
       generated_password.length.should eq(9)
     end
 
     it "should be a combination of two 4-letter dictionary words joined by a numeric character" do
-      generated_password.should =~ /^[a-z]{4}[0-9][a-z]{4}$/i
+      generated_password.should =~ /^[a-z]{4}[0-1,3-7,9][a-z]{4}$/i
     end
 
-    it "should exclude numbers 2 and 4" do
-      examples = Array.new(10) { subject.generate }
-      examples.should_not match_any([/[24]/])
+    it "should exclude the numbers 2, 4 and 8" do
+      examples = Array.new(10) { memorable_password.generate_simple }
+      examples.should_not match_any([/[248]/])
+    end
+  end
+
+  describe "#generate" do
+    it "should generate a random password" do
+      generated_password = memorable_password.generate
+      generated_password.should =~ /[a-z]*[0-9][a-z]*$/
+    end
+
+    it "should support the mixed_case option" do
+      generated_password = memorable_password.generate(:mixed_case => true)
+      generated_password.should =~ /[A-Z]?[a-z]*[0-9][A-Z]?[a-z]*$/
+    end
+
+    it "should support the special_characters option" do
+      generated_password = memorable_password.generate(:special_characters => true)
+      generated_password.should =~ /[a-z]*[!@$?-][a-z]*[0-9]$/
+    end
+
+    it "should support the length option" do
+      generated_password = memorable_password.generate(:length => 5)
+      generated_password.length.should == 5
+    end
+
+    it "should support the min_length option" do
+      generated_password = memorable_password.generate(:min_length => 12)
+      generated_password.length.should >= 12
+    end
+
+    it "should raise an exception if both the length and min_length options are supplied" do
+      expect {
+        memorable_password.generate(:length => 5, :min_length => 2)
+      }.should raise_exception('You cannot specify :length and :min_length at the same time')
     end
   end
 
   describe "#dictionary" do
-    let(:swear_words) do
-      @swear_words ||= open('http://www.bannedwordlist.com/lists/swearWords.txt') { |f| f.read }
+    # TODO  determine if we should have a mechanistm to test or update the default blacklist
+    #       with words from http://www.bannedwordlist.com/lists/swearWords.txt
+    let(:default_memorable_password) do
+      @default_memorable_password ||= MemorablePassword.new
     end
 
-    it "should exclude words in swear words list" do
-      subject.dictionary.should_not =~ swear_words
-    end
-
-    it "should exclude any matching the first 4 characters of any words in swaer words list" do
-      first_four_of_swear_words = swear_words.collect do |word|
-        Regexp.new(word[0..3])
-      end.uniq
-      subject.dictionary.should_not match_any(first_four_of_swear_words)
+    it "should not include any blacklisted words" do
+      uniq_dictionary_words = default_memorable_password.dictionary.values.flatten.uniq
+      uniq_blacklist_words = default_memorable_password.blacklist.uniq
+      (uniq_dictionary_words - uniq_blacklist_words).should == uniq_dictionary_words
     end
   end
 end
