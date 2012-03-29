@@ -31,8 +31,7 @@ require 'memorable_password/sample'
 class MemorablePassword
   MAX_WORD_LENGTH = 7
   DIGITS = %w[0 1 2 3 4 5 6 7 8 9].freeze
-  # TODO Determine if these are digits that do not equate to english words -- matt.dressel 20120328
-  NON_AMBIGUOUS_DIGITS = (DIGITS - %w(2 4 8)).freeze
+  NON_WORD_DIGITS = (DIGITS - %w(2 4 8)).freeze
   CHARACTERS = %w[! @ $ ? -].freeze
 
   # The default paths to the various dictionary flat files
@@ -68,7 +67,7 @@ class MemorablePassword
   # Generates memorable password as a combination of two 4-letter dictionary
   # words joined by a numeric character excluding 2, 4 and 8.
   def generate_simple
-    "#{word(4)}#{non_ambiguous_digit}#{word(4)}"
+    "#{word(4)}#{non_word_digit}#{word(4)}"
   end
 
   # Generates memorable password.
@@ -98,7 +97,7 @@ class MemorablePassword
     elsif opts[:special_characters]
       password = [word, character, word, digit]
     else
-      password = [word, non_ambiguous_digit, long_word]
+      password = [word, non_word_digit, long_word]
     end
 
     if opts[:mixed_case]
@@ -169,8 +168,8 @@ class MemorablePassword
   end
 
   # Returns a random, non-ambiguous digit (0..9 without 2, 4 and 8)
-  def non_ambiguous_digit
-    NON_AMBIGUOUS_DIGITS.sample
+  def non_word_digit
+    NON_WORD_DIGITS.sample
   end
 
   # Ensures that the word is valid:
