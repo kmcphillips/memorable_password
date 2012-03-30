@@ -106,6 +106,18 @@ describe MemorablePassword do
       examples = Array.new(10) { memorable_password.generate_simple }
       examples.should_not match_any([/[248]/])
     end
+
+    it "should not mutate the dictionary" do
+      default_path = "#{File.dirname(__FILE__)}/config"
+      memorable_password = MemorablePassword.new(:dictionary_paths => ["#{default_path}/short_dictionary.txt"])
+
+      generated_password = memorable_password.generate_simple
+      generated_password.should =~ /foo[0-9]foo$/
+
+      generated_password = memorable_password.generate_simple
+      generated_password.should =~ /foo[0-9]foo$/
+    end
+
   end
 
   describe "#generate" do
