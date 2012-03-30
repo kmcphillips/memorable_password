@@ -9,10 +9,12 @@ describe MemorablePassword do
                               :blacklist_paths => ["#{default_path}/custom_blacklist.txt"])
   end
 
+  subject {memorable_password}
+
   describe "constructor" do
     it "should initialize ban_list" do
-      memorable_password.ban_list.should_not be_nil
-      memorable_password.ban_list.should be_empty
+      subject.ban_list.should_not be_nil
+      subject.ban_list.should be_empty
     end
 
     it "should support a ban_list option" do
@@ -21,77 +23,77 @@ describe MemorablePassword do
     end
 
     it "should support configurable dictionary paths" do
-      memorable_password.dictionary.values.flatten.should include 'word'
+      subject.dictionary.values.flatten.should include 'word'
     end
 
     it "should support configurable blacklist paths" do
-      memorable_password.blacklist.should include 'blcklst'
+      subject.blacklist.should include 'blcklst'
     end
   end
 
   describe "#add_word" do
     it "should not add words that are less than 2 characters" do
-      memorable_password.add_word('i')
-      memorable_password.dictionary.values.flatten.should_not include('i')
+      subject.add_word('i')
+      subject.dictionary.values.flatten.should_not include('i')
     end
 
     it "should not add words that are greater than MemorablePassword::MAX_WORD_LENGTH" do
       long_word = (0..MemorablePassword::MAX_WORD_LENGTH+1).map{|a| 'a'}.join
-      memorable_password.add_word(long_word)
-      memorable_password.dictionary.values.flatten.should_not include(long_word)
+      subject.add_word(long_word)
+      subject.dictionary.values.flatten.should_not include(long_word)
     end
 
     it "should not add words that have non-letters" do
-      memorable_password.add_word('iask3')
-      memorable_password.dictionary.values.flatten.should_not include('iask3')
+      subject.add_word('iask3')
+      subject.dictionary.values.flatten.should_not include('iask3')
     end
 
     it "should not add words that are blacklisted" do
-      blacklisted_word = memorable_password.blacklist.first
-      memorable_password.add_word(blacklisted_word)
-      memorable_password.dictionary.values.flatten.should_not include(blacklisted_word)
+      blacklisted_word = subject.blacklist.first
+      subject.add_word(blacklisted_word)
+      subject.dictionary.values.flatten.should_not include(blacklisted_word)
     end
 
     it "should add valid words to the dictionary" do
       valid_word = 'uhappy'
-      memorable_password.add_word(valid_word)
-      memorable_password.dictionary.values.flatten.should include(valid_word)
+      subject.add_word(valid_word)
+      subject.dictionary.values.flatten.should include(valid_word)
     end
   end
 
   describe "#blacklist_word" do
     it "should not add words that are less than 2 characters" do
-      memorable_password.blacklist_word('i')
-      memorable_password.blacklist.should_not include('i')
+      subject.blacklist_word('i')
+      subject.blacklist.should_not include('i')
     end
 
     it "should not add words that are greater than MemorablePassword::MAX_WORD_LENGTH" do
       long_word = (0..MemorablePassword::MAX_WORD_LENGTH+1).map{|a| 'a'}.join
-      memorable_password.blacklist_word(long_word)
-      memorable_password.blacklist.should_not include(long_word)
+      subject.blacklist_word(long_word)
+      subject.blacklist.should_not include(long_word)
     end
 
     it "should not add words that have non-letters" do
-      memorable_password.blacklist_word('iask3')
-      memorable_password.blacklist.should_not include('iask3')
+      subject.blacklist_word('iask3')
+      subject.blacklist.should_not include('iask3')
     end
 
     it "should add valid words to the blacklist" do
       valid_word = 'uhappy'
-      memorable_password.blacklist_word(valid_word)
-      memorable_password.blacklist.should include(valid_word)
+      subject.blacklist_word(valid_word)
+      subject.blacklist.should include(valid_word)
     end
 
     it "should remove blacklisted word from the dictionary" do
-      blacklisted_dictionary_word = memorable_password.dictionary.values.flatten.sample
-      memorable_password.blacklist_word(blacklisted_dictionary_word)
-      memorable_password.dictionary.values.flatten.should_not include(blacklisted_dictionary_word)
+      blacklisted_dictionary_word = subject.dictionary.values.flatten.sample
+      subject.blacklist_word(blacklisted_dictionary_word)
+      subject.dictionary.values.flatten.should_not include(blacklisted_dictionary_word)
     end
 
   end
 
   describe "#generate_simple" do
-    let(:generated_password) { @generated_password ||= memorable_password.generate_simple }
+    let(:generated_password) { @generated_password ||= subject.generate_simple }
 
     it "should return a 9-letter string" do
       generated_password.should be_a(String)

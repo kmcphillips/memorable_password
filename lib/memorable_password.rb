@@ -15,18 +15,18 @@ require 'memorable_password/sample'
 #   MemorablePassword.new(:dictionary_paths => ['path_to_dictionary/dict.txt'])
 #   MemorablePassword.new(:blacklist_paths => ['path_to_blacklist/blacklist.txt'])
 #
-# == Simple password
-# Generate a simple 9-character password by calling #generate_simple.
-#
-#   MemorablePassword.new.generate_simple
-#   # => "sons3pied"
-#
-# == Advanced password
-# Generate a more advanced, random password by calling #generate.
+# == Generate password
+# Generate a random password by calling #generate.
 # See #generate for configuration details.
 #
 #   MemorablePassword.new.generate
 #   # => "fig7joeann"
+#
+# == Generate simple password
+# Generate a simple 9-character password by calling #generate_simple.
+#
+#   MemorablePassword.new.generate_simple
+#   # => "sons3pied"
 #
 class MemorablePassword
   MAX_WORD_LENGTH = 7
@@ -132,27 +132,27 @@ class MemorablePassword
     end
   end
 
-  # Adds the +word+ to the dictionary unless it is blacklisted
+  # Adds the +word+ to the dictionary unless it is invalid or blacklisted
   def add_word(word)
-    word = validate_word(word)
+    return unless validate_word(word)
+    word = normalize_word(word)
 
-    unless word.nil? || @blacklist.include?(word)
+    unless @blacklist.include?(word)
       length = word.length
       @dictionary[length] = [] unless @dictionary[length]
       @dictionary[length] << word
     end
   end
 
-  # Adds the +word+ to the blacklist
+  # Adds the +word+ to the blacklist unless it is invalid
   def blacklist_word(word)
-    word = validate_word(word)
+    return unless validate_word(word)
+    word = normalize_word(word)
 
-    unless word.nil?
-      @blacklist << word
-      # Remove the blacklisted word from the dictionary if it exists
-      dictionary_array = @dictionary[word.length]
-      dictionary_array.delete(word) if dictionary_array && dictionary_array.include?(word)
-    end
+    @blacklist << word
+    # Remove the blacklisted word from the dictionary if it exists
+    dictionary_array = @dictionary[word.length]
+    dictionary_array.delete(word) if dictionary_array && dictionary_array.include?(word)
   end
 
   private
@@ -173,20 +173,23 @@ class MemorablePassword
   end
 
   # Ensures that the word is valid:
+  #   is not null
   #   is at least 2 letters
   #   and does not exceed the MAX_WORD_LENGTH
   #
-  # Returns the word if it is valid
-  # Returns nil if the word is invalid
+  # Returns +true+ if the word if it is valid
+  # Returns +false+ if the word is invalid
   def validate_word(word)
-    return nil if word.nil?
+    return false if word.nil?
 
-    word = word.strip.downcase
-    if word.length <= MAX_WORD_LENGTH && word =~ /^[a-z]{2,}$/
-      word
-    else
-      nil
-    end
+    word = normalize_word(word)
+    word.length <= MAX_WORD_LENGTH && word =~ /^[a-z]{2,}$/
+  end
+
+  # Strips the word of carriage return characters
+  # and converts all characters to lowercase
+  def normalize_word(word)
+    word.strip.downcase
   end
 
   # Returns a random word. If +length+ is given, find a word with this length.
