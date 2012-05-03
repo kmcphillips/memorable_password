@@ -1,3 +1,3 @@
-module MemorablePassword
-  VERSION = "0.0.3"
+class MemorablePassword
+  VERSION = "0.1.1"
 end
