@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Kevin McPhillips", "Oleksandr Ulianytskyi"]
   s.email       = ["github@kevinmcphillips.ca", "a.ulyanitsky@gmail.com"]
-  s.homepage    = "http://github.com/kimos/memorable_password"
+  s.homepage    = "http://github.com/kmcphillips/memorable_password"
   s.summary     = %q{Generate human readable and easy to remember passwords}
   s.description = %q{This simple gem generates a random password that is easy to read and remember. It uses dictionary words as well as a list of proper names mixed in with numbers and special characters.}
 
@@ -20,6 +20,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency("rspec", ">= 2.6.0")
-  s.add_development_dependency("rcov", ">= 0")
   s.add_development_dependency("yard", ">= 0")
 end
