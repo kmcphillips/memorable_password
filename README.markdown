@@ -47,3 +47,6 @@ Generates a password that is two 4-char words joined by non-ambiguous digit (not
 Contact me at [github@kevinmcphillips.ca](mailto:github@kevinmcphillips.ca) with questions or feedback.
 
 
+## Contributions
+
+- knody on August 1, 2013: Improve support for Ruby 1.8.7

@@ -31,6 +31,12 @@ describe MemorablePassword do
     end
   end
 
+  describe "#to_s" do
+    it "should have a more resonable string representation than echoing all the arrays" do
+      memorable_password.inspect.should match(/#<MemorablePassword:0x.{14}>/)
+    end
+  end
+
   describe "#add_word" do
     it "should not add words that are less than 2 characters" do
       subject.add_word('i')
@@ -151,7 +157,7 @@ describe MemorablePassword do
     it "should raise an exception if both the length and min_length options are supplied" do
       expect {
         memorable_password.generate(:length => 5, :min_length => 2)
-      }.should raise_exception('You cannot specify :length and :min_length at the same time')
+      }.to raise_exception('You cannot specify :length and :min_length at the same time')
     end
   end
 

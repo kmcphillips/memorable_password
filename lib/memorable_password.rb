@@ -155,6 +155,10 @@ class MemorablePassword
     dictionary_array.delete(word) if dictionary_array && dictionary_array.include?(word)
   end
 
+  def inspect
+    to_s
+  end
+
   private
 
   # Returns a random character
