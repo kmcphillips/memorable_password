@@ -30,8 +30,7 @@ require 'memorable_password/sample'
 #
 class MemorablePassword
   MAX_WORD_LENGTH = 7
-  DIGITS = %w[0 1 2 3 4 5 6 7 8 9].freeze
-  NON_WORD_DIGITS = (DIGITS - %w(2 4 8)).freeze
+  DEFAULT_DIGITS = %w[0 1 2 3 4 5 6 7 8 9].freeze
   CHARACTERS = %w[! @ $ ? -].freeze
 
   # The default paths to the various dictionary flat files
@@ -47,7 +46,7 @@ class MemorablePassword
   }
 
   attr_reader :dictionary, :blacklist, :ban_list,
-              :dictionary_paths, :blacklist_paths
+              :dictionary_paths, :blacklist_paths, :digits, :non_word_digits
 
   def initialize(options={})
     # TODO implement these lists as Sets to get Hash lookup and uniqueness for free -- matt.dressel 20120328
@@ -57,6 +56,9 @@ class MemorablePassword
     # TODO support passing data in as an array -- matt.dressel 20120328
     @dictionary_paths = options.fetch(:dictionary_paths, DEFAULT_DICTIONARY_PATHS)
     @blacklist_paths = options.fetch(:blacklist_paths, DEFAULT_BLACKLIST_PATHS)
+
+    @digits = options.fetch(:digits, DEFAULT_DIGITS).freeze
+    @non_word_digits = (@digits - %w(2 4 8)).freeze
 
     @dictionary = {}
     @blacklist = []
@@ -168,12 +170,12 @@ class MemorablePassword
 
   # Returns a random digit
   def digit
-    DIGITS.sample
+    @digits.sample
   end
 
   # Returns a random, non-ambiguous digit (0..9 without 2, 4 and 8)
   def non_word_digit
-    NON_WORD_DIGITS.sample
+    @non_word_digits.sample
   end
 
   # Ensures that the word is valid:

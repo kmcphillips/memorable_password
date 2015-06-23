@@ -6,7 +6,8 @@ describe MemorablePassword do
     default_path = "#{File.dirname(__FILE__)}/config"
     @memorable_password ||= MemorablePassword.new(
                               :dictionary_paths => ["#{default_path}/custom_dictionary.txt"],
-                              :blacklist_paths => ["#{default_path}/custom_blacklist.txt"])
+                              :blacklist_paths => ["#{default_path}/custom_blacklist.txt"],
+                              :digits => %w[2 3 4 5 6 7 8 9])
   end
 
   subject {memorable_password}
@@ -28,6 +29,11 @@ describe MemorablePassword do
 
     it "should support configurable blacklist paths" do
       subject.blacklist.should include 'blcklst'
+    end
+
+    it "should support configurable digits" do
+      subject.digits.should eq(%w[2 3 4 5 6 7 8 9])
+      subject.non_word_digits.should eq(%w[3 5 6 7 9])
     end
   end
 
